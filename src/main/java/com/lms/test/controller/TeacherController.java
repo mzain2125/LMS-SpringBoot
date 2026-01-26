@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/teacher")
@@ -33,8 +34,8 @@ public class TeacherController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTeacherByID(@PathVariable Integer id){
-        Teacher teacher=teacherService.getTeacherById(id);
-        if(teacher==null){
+        Optional<Teacher> teacher=teacherService.getTeacherById(id);
+        if(teacher.isEmpty()){
            return ResponseEntity.badRequest().body("This is not available");
         }
         return ResponseEntity.ok(teacher);

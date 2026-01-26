@@ -2,6 +2,7 @@ package com.lms.test.service;
 
 
 import com.lms.test.entity.Teacher;
+import com.lms.test.exception.TeacherNotFoundException;
 import com.lms.test.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,17 +28,18 @@ public class TeacherService {
     public List<Teacher> getTeachers() {
         List<Teacher> teacher = teacherRepository.findAll();
         if (teacher.isEmpty()) {
-            return null;
+            throw new TeacherNotFoundException("Teacher list is empty");
         }
-        return teacherRepository.findAll();
+        return teacher;
     }
 
-    public Teacher getTeacherById(Integer id) {
-        Optional<Teacher> teacher = teacherRepository.findById(id);
-        if (teacher.isPresent()) {
-            return teacherRepository.findById(id).get();
-        }
-        return null;
+    public Optional<Teacher> getTeacherById(Integer id) {
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(
+                ()->new TeacherNotFoundException("Teacher Not Found"));
+//        if (teacher.isPresent()) {
+            return teacherRepository.findById(id);
+//        }
+//        return null;
     }
 
     public Teacher getTeacherByEmail(String email){
