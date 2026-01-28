@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,47 +44,58 @@ public class StudentService {
         return response;
     }
 
-    public Student getStudentById(Integer id) {
-        return studentRepository.findById(id).orElseThrow(
-                () -> new StudentNotFoundException("student not found Exception"));
+    public StudentDto getStudentById(Integer id) {
+        Student student = studentRepository.findById(id).
+                orElseThrow(() -> new StudentNotFoundException("Not found"));
+        StudentDto studentDto = new StudentDto();
 
+        BeanUtils.copyProperties(student, studentDto);
+        return studentDto;
     }
 
-    public List<Student> getStudentsByName(String name) {
+//    public Student getStudentById(Integer id) {
+//        return studentRepository.findById(id).orElseThrow(
+//                () -> new StudentNotFoundException("student not found Exception"));
+//
+//    }
+
+
+    public List<StudentDto> getStudentsByName(String name) {
         List<Student> student = studentRepository.findByName(name);
         if (student.isEmpty()) {
             throw new StudentNotFoundException(name + " Not Found in Database");
         }
-        return student;
+        List<StudentDto> studentDtoList = new ArrayList<>();
+        for (Student student1 : student) {
+            StudentDto dto = new StudentDto();
+            BeanUtils.copyProperties(student1, dto);
+            studentDtoList.add(dto);
+        }
+        return studentDtoList;
     }
 
-    public List<Student> getStudents() {
-        try {
-            List<Student> students = studentRepository.findAll();
-            if (students.isEmpty()) {
-                throw new StudentNotFoundException("No Data Found in Database");
-            }
-            return students;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public List<StudentDto> getStudents() {
+        List<Student> student = studentRepository.findAll();
+        if (student.isEmpty()) {
+            throw new StudentNotFoundException("Database is Empty");
         }
-
+        List<StudentDto> studentDto = new ArrayList<>();
+        for (Student student1 : student) {
+            StudentDto dto = new StudentDto();
+            BeanUtils.copyProperties(student1, dto);
+            studentDto.add(dto);
+        }
+        return studentDto;
     }
 
-    public Student updateStudent(Integer id, Student newStudent) {
-        try {
-            Optional<Student> student = studentRepository.findById(id);
-            if (student.isEmpty()) {
-                throw new StudentNotFoundException("Not Found");
-            }
-            Student student1 = student.get();
-            student1.setEmail(newStudent.getEmail());
-            student1.setName(newStudent.getName());
-            student1.setStatus(newStudent.getStatus());
-            return studentRepository.save(student1);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        }
+    public StudentDto updateStudent(Integer id, StudentDto newStudent) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Not found"));
+        BeanUtils.copyProperties(newStudent,student);
+        Student updateStudent=studentRepository.save(student);
+        StudentDto responseDto=new StudentDto();
+        BeanUtils.copyProperties(updateStudent,responseDto);
+        return responseDto;
     }
 
     public Student patchStudent(Integer id, Student newStudent) {

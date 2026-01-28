@@ -26,13 +26,13 @@ public class StudentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Integer id){
-        Student student=studentService.getStudentById(id);
+        StudentDto student=studentService.getStudentById(id);
         return ResponseEntity.ok(student);
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<?> getStudentsByName(@PathVariable String name){
-        List<Student> student=studentService.getStudentsByName(name);
+        List<StudentDto> student=studentService.getStudentsByName(name);
         return ResponseEntity.ok(student);
     }
 
@@ -42,8 +42,8 @@ public class StudentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateStudent(@PathVariable Integer id,@RequestBody Student student){
-        Student student1=studentService.updateStudent(id,student);
+    public ResponseEntity<?> updateStudent(@PathVariable Integer id,@RequestBody StudentDto student){
+        StudentDto student1=studentService.updateStudent(id,student);
         return ResponseEntity.ok("Successfully Updated");
     }
 
