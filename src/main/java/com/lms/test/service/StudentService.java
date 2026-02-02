@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class StudentService {
     @Autowired
     StudentRepository studentRepository;
 
-    public StudentDto saveStudent(StudentDto studentDto) {
+        public StudentDto saveStudent(StudentDto studentDto) {
 
         Student student = new Student();
         BeanUtils.copyProperties(studentDto, student);
@@ -42,8 +43,13 @@ public class StudentService {
         BeanUtils.copyProperties(student, response);
 
         return response;
+
     }
 
+    // Generate Age Calculate
+    public int calculateAge(LocalDate dob){
+            return Period.between(dob,LocalDate.now()).getYears();
+    }
     public StudentDto getStudentById(Integer id) {
         Student student = studentRepository.findById(id).
                 orElseThrow(() -> new StudentNotFoundException("Not found"));
