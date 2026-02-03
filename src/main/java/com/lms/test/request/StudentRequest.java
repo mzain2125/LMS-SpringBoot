@@ -1,66 +1,40 @@
-package com.lms.test.entity;
-
+package com.lms.test.request;
 
 import com.lms.test.enums.Grade;
 import com.lms.test.enums.Status;
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-@Entity
-public class Student {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-
-    @Column(nullable = false)
+public class StudentRequest {
+    @NotBlank(message = "Name is Required")
     private String name;
-
-    @Column(unique = true,nullable = false)
+    @Email(message = "Invalid email")
+    @NotBlank(message = "Email is Required")
     private String email;
-
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Status is required")
     private Status status;
-
-    private LocalDateTime createdAt=LocalDateTime.now();
-
-    @Column(unique = true,nullable = false)
+    @NotBlank(message = "Phone No is Required")
+    @Pattern(regexp = "\\d{11,}",message = "Phone no must be 11 digits")
     private String phoneNumber;
-
+    @NotNull(message = "Date of Birth is Required")
     private LocalDate dateOfBirth;
-
-    @Column(unique = true,nullable = true)
-    private Long enrollmentNumber;
-
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Grade is Required")
     private Grade grade;
 
-    public Student() {
+    public StudentRequest() {
     }
 
-    public Student(Integer id, String name, String email, Status status,
-                   LocalDateTime createdAt, String phoneNumber, LocalDate dateOfBirth,
-                   Long enrollmentNumber, Grade grade) {
-        this.id = id;
+    public StudentRequest(String name, String email, Status status, String phoneNumber, LocalDate dateOfBirth, Grade grade) {
         this.name = name;
         this.email = email;
         this.status = status;
-        this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
         this.dateOfBirth = dateOfBirth;
-        this.enrollmentNumber = enrollmentNumber;
         this.grade = grade;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -87,14 +61,6 @@ public class Student {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -109,14 +75,6 @@ public class Student {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
-    }
-
-    public Long getEnrollmentNumber() {
-        return enrollmentNumber;
-    }
-
-    public void setEnrollmentNumber(Long enrollmentNumber) {
-        this.enrollmentNumber = enrollmentNumber;
     }
 
     public Grade getGrade() {

@@ -6,6 +6,8 @@ import com.lms.test.exception.StudentAlreadyExist;
 import com.lms.test.exception.StudentNotFoundException;
 import com.lms.test.exception.TeacherNotFoundException;
 import com.lms.test.repository.StudentRepository;
+import com.lms.test.request.StudentRequest;
+import com.lms.test.response.StudentResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,16 +20,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class StudentService {
+public class StudentService implements com.lms.test.interfaces.Student {
 
     @Autowired
     StudentRepository studentRepository;
 
-        public StudentDto saveStudent(StudentDto studentDto) {
+    public StudentResponse saveStudent(StudentRequest studentRequest) {
 
         Student student = new Student();
-        BeanUtils.copyProperties(studentDto, student);
+        BeanUtils.copyProperties(studentRequest, student);
         student.setCreatedAt(LocalDateTime.now());
+        studentRepository.save(student);
+        StudentResponse response = new StudentResponse();
+        BeanUtils.copyProperties(student, response);
+        return response;
+
+    }
 //        String email = student.getEmail();
 //        if (!email.endsWith("@gmail.com")) {
 //            email = email + "@gmail.com";
@@ -37,26 +45,16 @@ public class StudentService {
 //        if (studentRepository.existsByEmail(student.getEmail())) {
 //            throw new StudentAlreadyExist("This Student Already Exist in Database");
 //        }
-        studentRepository.save(student);
-
-        StudentDto response = new StudentDto();
-        BeanUtils.copyProperties(student, response);
-
-        return response;
-
-    }
 
     // Generate Age Calculate
-    public int calculateAge(LocalDate dob){
-            return Period.between(dob,LocalDate.now()).getYears();
-    }
-    public StudentDto getStudentById(Integer id) {
-        Student student = studentRepository.findById(id).
-                orElseThrow(() -> new StudentNotFoundException("Not found"));
-        StudentDto studentDto = new StudentDto();
-
-        BeanUtils.copyProperties(student, studentDto);
-        return studentDto;
+//    public int calculateAge(LocalDate dob){
+//            return Period.between(dob,LocalDate.now()).getYears();
+//    }
+    public StudentResponse getStudentById(Integer id) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException("Student Not Found in the Database"));
+        StudentResponse studentResponse = new StudentResponse();
+        BeanUtils.copyProperties(student, studentResponse);
+        return studentResponse;
     }
 
 //    public Student getStudentById(Integer id) {
@@ -66,48 +64,47 @@ public class StudentService {
 //    }
 
 
-    public List<StudentDto> getStudentsByName(String name) {
+    public List<StudentResponse> getStudentsByName(String name) {
         List<Student> student = studentRepository.findByName(name);
         if (student.isEmpty()) {
             throw new StudentNotFoundException(name + " Not Found in Database");
         }
-        List<StudentDto> studentDtoList = new ArrayList<>();
+        List<StudentResponse> studentResponseList = new ArrayList<>();
         for (Student student1 : student) {
-            StudentDto dto = new StudentDto();
-            BeanUtils.copyProperties(student1, dto);
-            studentDtoList.add(dto);
+            StudentResponse studentResponse = new StudentResponse();
+            BeanUtils.copyProperties(student1, studentResponse);
+            studentResponseList.add(studentResponse);
         }
-        return studentDtoList;
+        return studentResponseList;
     }
 
-    public List<StudentDto> getStudents() {
+    public List<StudentResponse> getStudents() {
         List<Student> student = studentRepository.findAll();
         if (student.isEmpty()) {
             throw new StudentNotFoundException("Database is Empty");
         }
-        List<StudentDto> studentDto = new ArrayList<>();
+        List<StudentResponse> studentResponseList = new ArrayList<>();
         for (Student student1 : student) {
-            StudentDto dto = new StudentDto();
-            BeanUtils.copyProperties(student1, dto);
-            studentDto.add(dto);
+            StudentResponse studentResponse = new StudentResponse();
+            BeanUtils.copyProperties(student1, studentResponse);
+            studentResponseList.add(studentResponse);
         }
-        return studentDto;
+        return studentResponseList;
     }
 
-    public StudentDto updateStudent(Integer id, StudentDto newStudent) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException("Not found"));
-        BeanUtils.copyProperties(newStudent,student);
-        Student updateStudent=studentRepository.save(student);
-        StudentDto responseDto=new StudentDto();
-        BeanUtils.copyProperties(updateStudent,responseDto);
-        return responseDto;
+    public StudentResponse updateStudent(Integer id, StudentRequest newStudent) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException("Not found"));
+        BeanUtils.copyProperties(newStudent, student);
+        Student updateStudent = studentRepository.save(student);
+        StudentResponse studentRequest = new StudentResponse();
+        BeanUtils.copyProperties(updateStudent, studentRequest);
+        return studentRequest;
     }
 
-    public Student patchStudent(Integer id, Student newStudent) {
+    public StudentResponse patchStudent(Integer id, StudentRequest newStudent) {
         Optional<Student> student = studentRepository.findById(id);
         if (student.isEmpty()) {
-            throw new StudentNotFoundException("Not Found");
+            throw new StudentNotFoundException("Student Not Found");
         }
         Student student1 = student.get();
         if (newStudent.getName() != null) {
@@ -119,7 +116,19 @@ public class StudentService {
         if (newStudent.getEmail() != null) {
             student1.setEmail(newStudent.getEmail());
         }
-        return studentRepository.save(student1);
+        if(newStudent.getDateOfBirth()!=null){
+            student1.setDateOfBirth(newStudent.getDateOfBirth());
+        }
+        if(newStudent.getGrade()!=null){
+            student1.setGrade(newStudent.getGrade());
+        }
+        if(newStudent.getPhoneNumber()!=null){
+            student1.setPhoneNumber(newStudent.getPhoneNumber());
+        }
+        studentRepository.save(student1);
+        StudentResponse response=new StudentResponse();
+        BeanUtils.copyProperties(student1,response);
+        return response;
     }
 
     public void dltStudents() {
@@ -127,6 +136,7 @@ public class StudentService {
     }
 
     public void dltStudentById(Integer id) {
+        Student student=studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException("Student Not Found in the DB"));
         studentRepository.deleteById(id);
     }
 }

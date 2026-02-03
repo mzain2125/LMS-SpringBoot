@@ -22,7 +22,7 @@ public class TeacherRequest {
         private String qualification;
 
         @NotBlank(message = "Phone number is required")
-        @Pattern(regexp = "\\d{11,15}", message = "Phone number must be 11-15 digits")
+        @Pattern(regexp = "\\d{11,}", message = "Phone number must be 11 digits")
         private String phoneNumber;
 
         @NotNull(message = "Department is required")
